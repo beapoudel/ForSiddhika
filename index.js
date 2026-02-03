@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Be My Valentine? ❤️</title>
+    <style>
+        :root {
+            --pink-light: #ffebee;
+            --pink-main: #ff4081;
+            --pink-dark: #d81b60;
+        }
+
+        body {
+            background-color: var(--pink-light);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Comic Sans MS', 'cursive', sans-serif;
+            text-align: center;
+            overflow: hidden; /* Prevent page scroll */
+        }
+
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 25px;
+            box-shadow: 0 10px 30px rgba(255, 105, 180, 0.3);
+            border: 4px solid #ff80ab;
+            width: 85%;
+            max-width: 350px; /* Slimmer for that "card" feel */
+            min-height: 400px;
+            position: relative;
+            z-index: 10;
+            overflow: hidden; /* This keeps hearts inside the box */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        h1 {
+            color: var(--pink-dark);
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            z-index: 20;
+        }
+
+        .buttons-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            min-height: 150px;
+            width: 100%;
+            position: relative;
+            z-index: 20;
+        }
+
+        button {
+            padding: 12px 20px;
+            font-size: 1rem;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.2s ease;
+            touch-action: manipulation;
+        }
+
+        #yesBtn {
+            background-color: var(--pink-main);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 64, 129, 0.4);
+        }
+
+        #noBtn {
+            background-color: #bdbdbd;
+            color: white;
+            position: relative;
+        }
+
+        .hidden { display: none !important; }
+
+        #successMessage {
+            z-index: 20;
+        }
+
+        #successMessage img {
+            width: 100%;
+            max-width: 180px;
+            border-radius: 15px;
+            margin-top: 10px;
+        }
+
+        /* Floating Heart Animation - Modified for inside container */
+        .heart {
+            position: absolute;
+            top: -50px;
+            font-size: 1.5rem;
+            user-select: none;
+            z-index: 5; /* Behind the text, inside the box */
+            animation: fall linear forwards;
+        }
+
+        @keyframes fall {
+            to { transform: translateY(500px) rotate(360deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body onclick="playMusic()">
+
+    <audio id="bgMusic" loop>
+        <source src="audio.mpeg" type="audio/mpeg">
+    </audio>
+
+    <div class="container" id="mainBox">
+        <div id="questionArea">
+            <h1> Siddhika will you be my Prom? 🌹</h1>
+            <p style="font-size: 0.7rem; color: #ff80ab;">(Tap for music 🎵)</p>
+            <div class="buttons-wrapper">
+                <button id="yesBtn">Yes! ✨</button>
+                <button id="noBtn">No 🥺</button>
+            </div>
+        </div>
+
+        <div id="successMessage" class="hidden">
+            <h1>Yay! 💖</h1>
+            <p>I knew you'd say yes! 🥰</p>
+            <img src="ankit.jpeg" alt="Happy Cat">
+        </div>
+    </div>
+
+    <script>
+        const yesBtn = document.getElementById('yesBtn');
+        const noBtn = document.getElementById('noBtn');
+        const mainBox = document.getElementById('mainBox');
+        const audio = document.getElementById('bgMusic');
+        let musicStarted = false;
+        let yesScale = 1;
+        let noClickCount = 0;
+
+       const phrases = [
+            "Really? 🤨",
+            "Think again! 🧐",
+            "Are you sure? 💔",
+            "Please? 🥺",
+            "Don't do this to me... 😭",
+            "You're breaking my heart! 😿",
+            "Look at the big button! Click that! 👉",
+            "I'm gonna cry... 🌊",
+            "Okay, now you're just being mean! 😤",
+            "Still no? 🤡",
+           "Give up! Just say Yes! 😎"
+        ];
+
+        function playMusic() {
+            if (!musicStarted) { audio.play(); musicStarted = true; }
+        }
+
+        function handleNo() {
+            noBtn.innerText = phrases[Math.min(noClickCount, phrases.length - 1)];
+            noClickCount++;
+            
+            // Jump anywhere on screen
+            noBtn.style.position = 'fixed';
+            const x = Math.random() * (window.innerWidth - noBtn.offsetWidth);
+            const y = Math.random() * (window.innerHeight - noBtn.offsetHeight);
+            noBtn.style.left = x + 'px';
+            noBtn.style.top = y + 'px';
+
+            yesScale += 0.3;
+            yesBtn.style.transform = `scale(${yesScale})`;
+        }
+
+        noBtn.addEventListener('mouseover', handleNo);
+        noBtn.addEventListener('touchstart', (e) => { e.preventDefault(); handleNo(); });
+
+        yesBtn.addEventListener('click', () => {
+            document.getElementById('questionArea').classList.add('hidden');
+            document.getElementById('successMessage').classList.remove('hidden');
+            // Revert No button if it's floating around
+            noBtn.classList.add('hidden');
+            setInterval(createHeart, 300);
+        });
+
+        function createHeart() {
+            const heart = document.createElement('div');
+            heart.classList.add('heart');
+            heart.innerHTML = '❤️';
+            // Position relative to the container width
+            heart.style.left = Math.random() * 100 + '%';
+            heart.style.animationDuration = Math.random() * 2 + 2 + 's';
+            mainBox.appendChild(heart); // Appending to the box, not the body
+            setTimeout(() => heart.remove(), 4000);
+        }
+    </script>
+</body>
+</html>
